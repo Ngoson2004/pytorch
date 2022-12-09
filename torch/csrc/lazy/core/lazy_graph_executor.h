@@ -163,17 +163,18 @@ class TORCH_API LazyGraphExecutor {
   };
 
   // The DeviceContextArena holds per device live information and statistics,
-  // among which the lazy tensors which are currently alive in the system. This is
-  // used to create computation "barriers" in order to flush pending operations
-  // and ensure the same computations are created during the training loops.
+  // among which the lazy tensors which are currently alive in the system. This
+  // is used to create computation "barriers" in order to flush pending
+  // operations and ensure the same computations are created during the training
+  // loops.
   class DeviceContextArena {
    protected:
     struct DeviceContext {
-        std::mutex lock;
-        std::map<int64_t, std::weak_ptr<LazyTensor::Data>> tensors_data;
-        uint64_t seed = 101;
-        uint64_t running_seed = 101;
-        Value seed_ir_value;
+      std::mutex lock;
+      std::map<int64_t, std::weak_ptr<LazyTensor::Data>> tensors_data;
+      uint64_t seed = 101;
+      uint64_t running_seed = 101;
+      Value seed_ir_value;
     };
 
    public:
@@ -194,7 +195,7 @@ class TORCH_API LazyGraphExecutor {
 
     std::vector<BackendDevice> GetActiveDevices();
 
-  protected:
+   protected:
     DeviceContext* GetDeviceContext(const BackendDevice& device);
 
     void ForAllDeviceContexts(
@@ -207,7 +208,7 @@ class TORCH_API LazyGraphExecutor {
         at::ScalarType scalar_type,
         const BackendDevice& device);
 
-  private:
+   private:
     std::vector<DeviceContext*> GetAllDeviceContexts();
 
     std::mutex lock_;
