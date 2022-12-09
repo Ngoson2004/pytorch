@@ -177,13 +177,15 @@ class TORCH_API LazyGraphExecutor {
 
    public:
     static DeviceContextArena* Get();
+    virtual ~DeviceContextArena() = default;
 
     void RegisterTensor(std::shared_ptr<LazyTensor::Data> data);
     void UnregisterTensor(LazyTensor::Data* data);
 
     std::vector<LazyTensorPtr> GetLiveTensors(const BackendDevice* device);
 
-    Value GetRngSeed(const BackendDevice& device);
+    // Overriding it allow derived class to use their own IRs for Value.
+    virtual Value GetRngSeed(const BackendDevice& device);
     uint64_t GetRunningSeed(const BackendDevice& device);
     void SetRngSeed(const BackendDevice& device, uint64_t seed);
 
@@ -191,19 +193,21 @@ class TORCH_API LazyGraphExecutor {
 
     std::vector<BackendDevice> GetActiveDevices();
 
-  private:
-    std::vector<DeviceContext*> GetAllDeviceContexts();
+  protected:
+    DeviceContext* GetDeviceContext(const BackendDevice& device);
 
     void ForAllDeviceContexts(
         const std::function<void(DeviceContext*)>& fn,
         const BackendDevice* device);
 
-    DeviceContext* GetDeviceContext(const BackendDevice& device);
-
-    Value IrValueFromScalar(
+    // Overriding it allow derived class to use their own conversions.
+    virtual Value IrValueFromScalar(
         const at::Scalar& value,
         at::ScalarType scalar_type,
         const BackendDevice& device);
+
+  private:
+    std::vector<DeviceContext*> GetAllDeviceContexts();
 
     std::mutex lock_;
     std::map<BackendDevice, DeviceContext*> device_contexts_;
